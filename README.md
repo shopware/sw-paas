@@ -1,2 +1,2 @@
 # sw-paas
-Shopware PaaS Native CLI
+Shopware PaaS Native CLI Releases
