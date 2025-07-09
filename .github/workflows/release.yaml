@@ -1,0 +1,41 @@
+name: Release Artifacts on Tag
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  upload-artifacts:
+    name: Upload Artifacts for Tag
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Extract Version from Tag
+        id: extract_version
+        run: |
+          echo "RELEASE_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
+          echo "RELEASE_VERSION=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
+          echo "Detected version: ${GITHUB_REF##*/}"
+
+      - name: List Artifacts
+        run: |
+          ls -lh releases/${RELEASE_VERSION}
+
+      - name: Create GitHub Release
+        id: create_release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.extract_version.outputs.RELEASE_VERSION }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Artifacts to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: releases/${{ steps.extract_version.outputs.RELEASE_VERSION }}/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
