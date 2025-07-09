@@ -26,7 +26,7 @@ main() {
         rm -f "$exe"
     fi
 
-    download_url="https://github.com/shopware/paas-cli/releases/download/$version/sw-paas_${os}_${arch}"
+    download_url="https://github.com/shopware/sw-paas/releases/download/$version/sw-paas_${os}_${arch}"
     echo "Downloading $download_url..."
     curl -q --fail --location --progress-bar --output "$tmp_dir/sw-paas" "$download_url"
     
