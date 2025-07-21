@@ -17,7 +17,7 @@ curl -L https://install.sw-paas-cli.shopware.systems | sh
 To install a specific version, pass the version as an argument:
 
 ```bash
-curl -L https://install.sw-paas-cli.shopware.systems | sh -s v0.0.30
+curl -L https://install.sw-paas-cli.shopware.systems | sh -s 0.0.30
 ```
 
 ### Manual Installation
