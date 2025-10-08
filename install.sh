@@ -26,12 +26,17 @@ main() {
         rm -f "$exe"
     fi
 
-    download_url="https://github.com/shopware/sw-paas/releases/download/$version/sw-paas_${os}_${arch}"
+    download_url="https://github.com/shopware/sw-paas/releases/download/$version/sw-paas_${os}_${arch}.tar.gz"
     echo "Downloading $download_url..."
-    curl -q --fail --location --progress-bar --output "$tmp_dir/sw-paas" "$download_url"
+    curl -q --fail --location --progress-bar --output "$tmp_dir/sw-paas.tar.gz" "$download_url"
+    
+    echo "Extracting archive..."
+    tar -xzf "$tmp_dir/sw-paas.tar.gz" -C "$tmp_dir"
     
     chmod +x "$tmp_dir/sw-paas"
     mv "$tmp_dir/sw-paas" "$exe"
+    
+    rm -f "$tmp_dir/sw-paas.tar.gz"
     
     echo "Shopware PaaS was installed successfully to $exe."
     
