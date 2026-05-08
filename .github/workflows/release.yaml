@@ -1,35 +1,44 @@
-name: Release Artifacts on Tag
+name: Re-publish Release (manual fallback)
 
 on:
-  push:
-    tags:
-      - "*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to re-publish (e.g. 0.0.47)"
+        required: true
+        type: string
 
 jobs:
-  upload-artifacts:
-    name: Upload Artifacts for Tag
+  republish:
+    name: Re-publish release ${{ inputs.version }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
 
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - name: Obtain token
+        uses: octo-sts/action@v1.0.0
+        id: sts-paas-cli
+        with:
+          scope: shopware/paas-cli
+          identity: sw-paas
 
-      - name: Extract Version from Tag
-        id: extract_version
+      - name: Download artifacts
+        env:
+          GH_TOKEN: ${{ steps.sts-paas-cli.outputs.token }}
         run: |
-          echo "RELEASE_VERSION=${GITHUB_REF##*/}" >> $GITHUB_ENV
-          echo "RELEASE_VERSION=${GITHUB_REF##*/}" >> $GITHUB_OUTPUT
-          echo "Detected version: ${GITHUB_REF##*/}"
-
-      - name: List Artifacts
-        run: |
-          ls -lh releases/${RELEASE_VERSION}
+          mkdir -p artifacts
+          gh release download "${{ inputs.version }}" \
+            --dir artifacts \
+            --repo shopware/paas-cli
 
       - name: Create GitHub Release
-        id: create_release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.extract_version.outputs.RELEASE_VERSION }}
-          files: releases/${{ steps.extract_version.outputs.RELEASE_VERSION }}/*
+          tag_name: ${{ inputs.version }}
+          name: ${{ inputs.version }}
+          body: "Release ${{ inputs.version }}"
+          files: artifacts/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
