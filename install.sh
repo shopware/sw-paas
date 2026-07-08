@@ -43,14 +43,18 @@ main() {
     if command -v sw-paas >/dev/null; then
         echo "Run \`sw-paas auth\` to get started."
     else
-        case $SHELL in
-        /bin/zsh) shell_profile=".zshrc" ;;
-        *) shell_profile=".bash_profile" ;;
+        case $(basename "$SHELL") in
+        zsh)  shell_profile=".zshrc" ;;
+        bash) shell_profile=".bash_profile" ;;
+        *)    shell_profile=".profile" ;;
         esac
-        echo "\n# Shopware PaaS CLI" >> "$HOME/$shell_profile"
-        echo "export SW_PAAS_INSTALL=\"$sw_paas_dir\"" >> "$HOME/$shell_profile"
-        echo "export PATH=\"\$SW_PAAS_INSTALL/bin:\$PATH\"" >> "$HOME/$shell_profile"
-        echo "Open a new terminal or run 'source $HOME/$shell_profile' to start using Shopware PaaS CLI"
+        profile_path="$HOME/$shell_profile"
+        if ! grep -qs "# Shopware PaaS CLI" "$profile_path"; then
+            printf '\n# Shopware PaaS CLI\n' >> "$profile_path"
+            printf 'export SW_PAAS_INSTALL="%s"\n' "$sw_paas_dir" >> "$profile_path"
+            printf 'export PATH="$SW_PAAS_INSTALL/bin:$PATH"\n' >> "$profile_path"
+        fi
+        echo "Open a new terminal or run 'source $profile_path' to start using Shopware PaaS CLI"
         echo "Then, run \`sw-paas auth\` to get started."
     fi
 }
